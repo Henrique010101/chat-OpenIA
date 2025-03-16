@@ -1,0 +1,18 @@
+{
+  "name": "chat-openIA",
+  "version": "1.0.0",
+  "description": "Frontend for chat application using OpenAI",
+  "main": "index.js",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "vue": "^2.6.12"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^4.5.0"
+  },
+  "author": "Henrique",
+  "license": "MIT"
+}
