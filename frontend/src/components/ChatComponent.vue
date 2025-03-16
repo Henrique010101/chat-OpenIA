@@ -8,7 +8,10 @@
         <strong>{{ message.sender === 'User' ? 'USER' : 'OpenIA' }}:</strong> {{ message.text }}
       </article>
     </section>
-    <input v-model="userInput" @keyup.enter="sendMessage" placeholder="No que você está pensando?" class="chat_input" />
+    <div class="input_container">
+      <input v-model="userInput" @keyup.enter="sendMessage" placeholder="No que você está pensando?" class="chat_input" />
+      <button @click="sendMessage" class="send_button">Enviar</button>
+    </div>
   </div>
 </template>
 
@@ -148,5 +151,31 @@ export default {
 .chat_input:focus {
   outline: none;
   border-color: #898989;
+}
+
+.input_container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.send_button {
+  background-color: #0095c6;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.send_button:hover {
+  background-color: #007095;
+}
+
+.send_button:active {
+  background-color: #00afe9;
 }
 </style>
