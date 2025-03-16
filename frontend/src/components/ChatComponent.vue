@@ -103,7 +103,7 @@ export default {
 
 .message.User {
   align-self: flex-end;
-  background-color: #bbd5bc;
+  background-color: #cefacf;
 }
 
 .message.User::before {
@@ -113,14 +113,14 @@ export default {
   bottom: 7px;
   width: 0;
   height: 0;
-  border-left: 10px solid #bbd5bc;
+  border-left: 13px solid #cefacf;
   border-top: 7px solid transparent;
   border-bottom: 7px solid transparent;
 }
 
 .message.Bot {
   align-self: flex-start;
-  background-color: #cab6cf;
+  background-color: #efd4f5;
 }
 
 .message.Bot::before {
@@ -130,7 +130,7 @@ export default {
   bottom: 7px;
   width: 0;
   height: 0;
-  border-right: 10px solid #cab6cf;
+  border-right: 13px solid #efd4f5;
   border-top: 7px solid transparent;
   border-bottom: 7px solid transparent;
 }
