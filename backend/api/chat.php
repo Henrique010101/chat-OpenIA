@@ -3,16 +3,11 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-require __DIR__ . '/../vendor/autoload.php';
-
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+require_once "../config.php";
 
 $apiKey = getenv('OPENAI_API_KEY');
-if ($apiKey != '') {
+
+if (empty($apiKey)) {
     echo json_encode(['error' => 'API key not set']);
     exit();
 }
@@ -23,22 +18,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $reqPayload = file_get_contents('php://input');
-$reqtData = json_decode($reqPayload, true);
+error_log("Request Payload: " . $reqPayload);
+
+$reqData = json_decode($reqPayload, true);
+
+if ($reqData === null) {
+    error_log("Erro ao decodificar JSON: " . json_last_error_msg());
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid JSON received"]);
+    exit();
+}
+
 $model = 'gpt-3.5-turbo';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($reqtData['message'])) {
-    $userMessage = $reqtData['message'];
-    $apiUrl = 'https://api.openai.com/v1/completions';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($reqData['message'])) {
+    $userMessage = $reqData['message'];
+    $apiUrl = 'https://api.openai.com/v1/chat/completions';
+
     $httpHeaders = [
         'Content-Type: application/json',
         'Authorization: Bearer ' . $apiKey
     ];
+
     $apiReqtData = json_encode([
         'model' => $model,
-        'prompt' => $userMessage,
+        'messages' => [
+            ["role" => "user", "content" => $userMessage]
+        ],
         'max_tokens' => 150
     ]);
 
+    // Inicia a requisição cURL à OpenAI
     $ch = curl_init($apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeaders);
@@ -55,11 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($reqtData['message'])) {
     }
 
     curl_close($ch);
-    error_log($apiRes);
+    error_log("API Response: " . $apiRes);
+
     $apiResData = json_decode($apiRes, true);
 
-    if (isset($apiResData['choices'][0]['text'])) {
-        $botReply = $apiResData['choices'][0]['text'];
+    if (isset($apiResData['choices'][0]['message']['content'])) {
+        $botReply = $apiResData['choices'][0]['message']['content'];
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Invalid response from OpenAI API']);
@@ -67,7 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($reqtData['message'])) {
     }
 
     $resPayload = [
-        'reply' => $botReply
+        'reply' => $botReply,
+        'raw_response' => $apiResData
     ];
 
     echo json_encode($resPayload);

@@ -21,40 +21,38 @@ export default {
     return {
       userInput: '',
       chatMessages: [],
+      isLoading: false,
     };
   },
   methods: {
     async sendMessage() {
-      if (this.userInput.trim() === '') return;
+      if (this.userInput.trim() === '' || this.isLoading) return;
+      this.isLoading = true;
 
       const userMessage = { sender: 'User', text: this.userInput };
       this.chatMessages.push(userMessage);
-      this.scrollToBottom();
 
       try {
         const response = await fetch('http://localhost/backend/api/chat.php', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: this.userInput }),
         });
 
         const responseData = await response.json();
+
         const botMessage = { sender: 'Bot', text: responseData.reply };
         this.chatMessages.push(botMessage);
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Erro na requisição:', error);
       } finally {
         this.userInput = '';
-        this.scrollToBottom();
+        this.isLoading = false;
+        this.$nextTick(() => {
+          const messagesContainer = this.$refs.messagesContainer;
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
       }
-    },
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const messagesContainer = this.$refs.messagesContainer;
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      });
     },
   },
 };
